@@ -66,6 +66,7 @@ BACK_ROCE_BORADNO=
 #add by hezhongyan
 ##################
 #init
+export g_IFS0=${IFS}
 export g__t=$'\t'
 export g__n=$'\n'
 export g__r=$'\r'
@@ -77,7 +78,7 @@ export g_defVariablesOneTime=
 export g_drTmp=~/tmp
 mkdir -p ${g_drTmp}
 
-###########
+#####################
 export g_sSplit=$'\t'
 export g_statusPass=[Pass]
 export g_nPass=0
@@ -90,7 +91,7 @@ export g_nNone=10
 export g_statusClose=[Close]
 export g_statusUndef=[Undef]
 
-######
+###########
 #删除状态表, 重新生成;
 export g_bTCsReset=true
 
@@ -109,5 +110,20 @@ CONFIG_LIB_TMP=$(cd "`dirname $0`" ; pwd)
 echo ${CONFIG_LIB_TMP}
 python ${CONFIG_LIB_TMP}/../ci_interface/if/AddPath.py
 
+#MAC of DHCP server
+DHCP_SERVER_MAC_ADDR="e8:4d:d0:c0:d4:66"
+CLIENT_SERVER_MAC_ADDR="c0:a8:02:f0:00:04"
+BOARD_159_MAC_ADDR="ee:44:ed:2a:9a:e2"
+
+#User info of DHCP
+DHCP_SERVER_USER="luojiaxing"
+DHCP_SERVER_PASS="ljx12\#\$" 
+
+COMMON_LOCAL_IP="0.0.0.0"
+COMMON_CLIENT_IP="0.0.0.0"
+
+#Default DHCP server ip. 
+#prepare for DHCP ip no found
+COMMON_DEFAULT_DHCP_IP="192.168.3.100"
 ####################################################################################
 

@@ -7,8 +7,8 @@ HNS_TOP_DIR=$(cd "`dirname $0`" ; pwd)
 . ${HNS_TOP_DIR}/config/xge_test_lib
 
 # Load the public configuration library
-#. ${XGE_TOP_DIR}/../config/common_config
-#. ${XGE_TOP_DIR}/../config/common_lib
+. ${HNS_TOP_DIR}/../config/common_config
+. ${HNS_TOP_DIR}/../config/common_lib
 
 
 # Main operation function
@@ -18,6 +18,11 @@ HNS_TOP_DIR=$(cd "`dirname $0`" ; pwd)
 function main()
 {
     echo "Begin to Run XGE Test"
+    
+    if [ x"${BACK_IP}" = x"192.168.3.229" ]
+    then
+	return 1
+    fi
 
     local MaxRow=$(sed -n '$=' "${HNS_TOP_DIR}/${TEST_CASE_DB_FILE}")
     local RowNum=0
@@ -60,8 +65,40 @@ function main()
 #Output log file header
 writeLogHeader
 
+#Xge test is only excute in 159 dash board
+#Find the local MAC
+tmpMAC=`ifconfig eth0 | grep "HWaddr" | awk '{print $NF}'`
+if [ x"${tmpMAC}" = x"${BOARD_159_MAC_ADDR}" ]
+then
+	echo "Xge test can be excute in this board!"
+else
+	echo "Xge test can not be excute in this board,exit!"
+	exit 0
+fi
+
 #ifconfig IP
-init_net_ip
+initLocalIP 
+LOCAL_IP=${COMMON_LOCAL_IP}
+echo ${LOCAL_IP}
+
+#init_client_ip
+
+getIPofClientServer ${DHCP_SERVER_MAC_ADDR} ${CLIENT_SERVER_MAC_ADDR} ${DHCP_SERVER_USER} ${DHCP_SERVER_PASS}
+
+if [ x"${COMMON_CLIENT_IP}" = x"" ] || [ x"${COMMON_CLIENT_IP}" = x"0.0.0.0" ]
+then
+	echo "No found client IP,try ping default DHCP ip to update arp list!"
+        ping ${COMMON_DEFAULT_DHCP_IP} -c 5
+        getIPofClientServer ${DHCP_SERVER_MAC_ADDR} ${CLIENT_SERVER_MAC_ADDR} ${DHCP_SERVER_USER} ${DHCP_SERVER_PASS}
+        if [ x"${COMMON_CLIENT_IP}" = x"" ]
+        then
+		echo "Can not find the client IP, exit hns test!"
+                exit 0
+        fi
+fi
+
+BACK_IP=${COMMON_CLIENT_IP}
+echo "The client ip is "${BACK_IP}
 
 #set passwd
 setTrustRelation

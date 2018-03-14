@@ -59,8 +59,43 @@ function main()
 	done
 }
 
+#roce test is only excute in 159 dash board
+#Find the local MAC
+tmpMAC=`ifconfig eth0 | grep "HWaddr" | awk '{print $NF}'`
+if [ x"${tmpMAC}" = x"${BOARD_159_MAC_ADDR}" ]
+then
+	echo "ROCE test can be excute in this board!"
+else
+	echo "ROCE test can not be excute in this board,exit!"
+	exit 0
+fi
+
+#Get Local IP
+initLocalIP 
+LOCAL_IP=${COMMON_LOCAL_IP}
+echo ${LOCAL_IP}
+
+#Get client ip
+getIPofClientServer ${DHCP_SERVER_MAC_ADDR} ${CLIENT_SERVER_MAC_ADDR} ${DHCP_SERVER_USER} ${DHCP_SERVER_PASS}
+
+if [ x"${COMMON_CLIENT_IP}" = x"" ]
+then
+	echo "No found client IP,try ping default DHCP ip to update arp list!"
+        ping ${COMMON_DEFAULT_DHCP_IP} -c 5
+        getIPofClientServer ${DHCP_SERVER_MAC_ADDR} ${CLIENT_SERVER_MAC_ADDR} ${DHCP_SERVER_USER} ${DHCP_SERVER_PASS}
+        if [ x"${COMMON_CLIENT_IP}" = x"" ]
+        then
+		echo "Can not find the client IP, exit hns test!"
+                exit 0
+        fi
+fi
+
+BACK_IP=${COMMON_CLIENT_IP}
+echo "The client ip is "${BACK_IP}
+
 #get BACK_IP according host's ip
-Init_Net_Ip
+#Init_Net_Ip
+init_net_export
 
 TrustRelation ${BACK_IP}
 
